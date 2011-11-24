@@ -21,12 +21,12 @@ class Boot {
 
     // Build SiteMap
     val entries = List(
-      Menu.i("Home") / "index", // the simple way to declare a menu
+      Menu(Loc("Home", List("index"), "Home", Loc.Stateless)),
 
       // more complex because this menu allows anything in the
       // /static path to be visible
       Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content")))
+	       "Static Content",  Loc.Stateless)))
 
     // set the sitemap.  Note if you don't want access control for
     // each page, just comment this line out.
@@ -35,13 +35,11 @@ class Boot {
     // Use jQuery 1.4
     LiftRules.jsArtifacts = net.liftweb.http.js.jquery.JQuery14Artifacts
 
-    //Show the spinny image when an Ajax call starts
-    LiftRules.ajaxStart =
-      Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
-    
-    // Make the spinny image go away when it ends
-    LiftRules.ajaxEnd =
-      Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
+    //Don't use state with Heroku
+    LiftRules.autoIncludeAjax = _ => false
+    LiftRules.statelessTest.append {
+      case _ => true
+    }
 
     // Force the request to be UTF-8
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
